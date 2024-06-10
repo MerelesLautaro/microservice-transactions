@@ -17,11 +17,7 @@ public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idTransaction;
-    @ElementCollection(targetClass = TypeOfOperation.class)
-    @Enumerated(EnumType.STRING)
-    @CollectionTable(name = "type_of_operation", joinColumns = @JoinColumn(name = "operation_id"))
-    @Column(name = "type_of_operation")
-    @Size(min = 1)
+    @NotNull
     private TypeOfOperation typeOfOperation;
     @NotNull
     private double amount;

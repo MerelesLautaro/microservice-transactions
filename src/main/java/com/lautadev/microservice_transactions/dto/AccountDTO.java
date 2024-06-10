@@ -16,5 +16,5 @@ public class AccountDTO {
     private double balance;
     private String cvu;
     private String alias;
-    private Long idUser;
+    private UserDTO User;
 }

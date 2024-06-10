@@ -9,4 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface IAccountAPIClient {
     @GetMapping("/api/account/get/{id}")
     public AccountDTO findAccount(@PathVariable ("id") Long id);
+
+    @GetMapping("/api/account/get/accountAndUser/{id}")
+    public AccountDTO findAccountAndUser(@PathVariable ("id") Long id);
 }

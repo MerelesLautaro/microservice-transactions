@@ -39,13 +39,14 @@ public class TransactionsService implements ITransactionsService {
     @CircuitBreaker(name = "microservice-account",fallbackMethod = "fallBackFindTransactionAndAccount")
     @Retry(name = "microservice-account")
     public TransactionDTO findTransactionAndAccount(Long idTransaction) {
-        Transaction transaction = this.findTransaction(idTransaction);
-        AccountDTO accountDTO = accountAPI.findAccount(transaction.getIdAccount());
+        Transaction transaction = transactionRepo.findById(idTransaction).orElse(null);
+        assert transaction != null;
+        AccountDTO accountDTO = accountAPI.findAccountAndUser(transaction.getIdAccount());
         return new TransactionDTO(accountDTO,transaction);
     }
 
-    public TransactionDTO fallBackFindTransactionAndAccount(Throwable throwable){
-        return new TransactionDTO();
+    public String fallBackFindTransactionAndAccount(Throwable throwable){
+        return "algo salio mal";
     }
 
     @Override
