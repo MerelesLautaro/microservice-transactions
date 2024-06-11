@@ -3,7 +3,9 @@ package com.lautadev.microservice_transactions.service;
 import com.lautadev.microservice_transactions.Throwable.TransactionValidator;
 import com.lautadev.microservice_transactions.dto.AccountDTO;
 import com.lautadev.microservice_transactions.dto.TransactionDTO;
+import com.lautadev.microservice_transactions.dto.UpdateBalanceDTO;
 import com.lautadev.microservice_transactions.model.Transaction;
+import com.lautadev.microservice_transactions.model.TypeOfOperation;
 import com.lautadev.microservice_transactions.repository.IAccountAPIClient;
 import com.lautadev.microservice_transactions.repository.ITransactionsRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -26,6 +28,14 @@ public class TransactionsService implements ITransactionsService {
 
     @Override
     public void saveTransaction(Transaction transaction) {
+        validator.validate(transaction);
+
+        if(transaction.getTypeOfOperation().equals(TypeOfOperation.MoneyReceived)
+                || transaction.getTypeOfOperation().equals(TypeOfOperation.BalanceTopUp)){
+            UpdateBalanceDTO updateBalanceDTO = new UpdateBalanceDTO(transaction.getAmount(), transaction.getTypeOfOperation());
+            accountAPI.updateBalance(transaction.getIdAccount(),updateBalanceDTO);
+        }
+
         validator.validate(transaction);
         transactionRepo.save(transaction);
     }

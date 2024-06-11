@@ -2,7 +2,7 @@ package com.lautadev.microservice_transactions.model;
 
 public enum TypeOfOperation {
     MoneyReceived,
-    BalanceUp,
+    BalanceTopUp,
     MoneyTransfer,
     QRpayment,
     WithDrawalOfMoney
