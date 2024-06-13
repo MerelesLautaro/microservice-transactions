@@ -6,7 +6,7 @@ import com.lautadev.microservice_transactions.model.Transaction;
 import java.util.List;
 
 public interface ITransactionsService {
-    public void saveTransaction(Transaction transaction);
+    public void saveTransaction(Transaction transaction, String aliasOrCvu);
     public List<Transaction> getTransactions();
     public TransactionDTO findTransactionAndAccount(Long idTransaction);
     public Transaction findTransaction(Long idTransaction);

@@ -17,8 +17,9 @@ public class TransactionsController {
     private ITransactionsService transactionServ;
 
     @PostMapping("/save")
-    public ResponseEntity<?> saveTransaction(@Valid @RequestBody Transaction transaction){
-        transactionServ.saveTransaction(transaction);
+    public ResponseEntity<?> saveTransaction(@Valid @RequestBody Transaction transaction,
+                                             @RequestParam(required = false) String aliasOrCvu){
+        transactionServ.saveTransaction(transaction, aliasOrCvu);
         return ResponseEntity.ok().build();
     }
 

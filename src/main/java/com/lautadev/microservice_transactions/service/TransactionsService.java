@@ -5,7 +5,6 @@ import com.lautadev.microservice_transactions.dto.AccountDTO;
 import com.lautadev.microservice_transactions.dto.TransactionDTO;
 import com.lautadev.microservice_transactions.dto.UpdateBalanceDTO;
 import com.lautadev.microservice_transactions.model.Transaction;
-import com.lautadev.microservice_transactions.model.TypeOfOperation;
 import com.lautadev.microservice_transactions.repository.IAccountAPIClient;
 import com.lautadev.microservice_transactions.repository.ITransactionsRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -27,17 +26,18 @@ public class TransactionsService implements ITransactionsService {
     private TransactionValidator validator;
 
     @Override
-    public void saveTransaction(Transaction transaction) {
+    @CircuitBreaker(name = "microservice-account",fallbackMethod = "fallBackUpdateBalanceAccount")
+    @Retry(name = "microservice-account")
+    public void saveTransaction(Transaction transaction, String aliasOrCvu) {
         validator.validate(transaction);
-
-        if(transaction.getTypeOfOperation().equals(TypeOfOperation.MoneyReceived)
-                || transaction.getTypeOfOperation().equals(TypeOfOperation.BalanceTopUp)){
-            UpdateBalanceDTO updateBalanceDTO = new UpdateBalanceDTO(transaction.getAmount(), transaction.getTypeOfOperation());
-            accountAPI.updateBalance(transaction.getIdAccount(),updateBalanceDTO);
-        }
-
-        validator.validate(transaction);
+        UpdateBalanceDTO updateBalanceDTO = new UpdateBalanceDTO(transaction.getAmount(), transaction.getTypeOfOperation());
+        if(aliasOrCvu!=null) updateBalanceDTO.setAliasOrCvu(aliasOrCvu);
+        accountAPI.updateBalance(transaction.getIdAccount(),updateBalanceDTO,"PATCH");
         transactionRepo.save(transaction);
+    }
+
+    public void fallBackUpdateBalanceAccount(Throwable throwable) {
+        // Adecuar el Throwable con el uso de Logger...
     }
 
     @Override
@@ -79,6 +79,7 @@ public class TransactionsService implements ITransactionsService {
         transactionEdit.setDateOfOperation(transaction.getDateOfOperation());
         transactionEdit.setIdAccount(transaction.getIdAccount());
 
-        this.saveTransaction(transactionEdit);
+        validator.validate(transactionEdit);
+        transactionRepo.save(transactionEdit);
     }
 }

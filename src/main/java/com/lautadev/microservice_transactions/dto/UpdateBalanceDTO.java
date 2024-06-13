@@ -12,4 +12,10 @@ import lombok.Setter;
 public class UpdateBalanceDTO {
     private double amount;
     private TypeOfOperation typeOfOperation;
+    private String aliasOrCvu;
+
+    public UpdateBalanceDTO(double amount, TypeOfOperation typeOfOperation) {
+        this.amount = amount;
+        this.typeOfOperation = typeOfOperation;
+    }
 }
