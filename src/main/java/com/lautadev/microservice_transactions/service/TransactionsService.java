@@ -9,6 +9,8 @@ import com.lautadev.microservice_transactions.repository.IAccountAPIClient;
 import com.lautadev.microservice_transactions.repository.ITransactionsRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +27,8 @@ public class TransactionsService implements ITransactionsService {
     @Autowired
     private TransactionValidator validator;
 
+    public static final Logger logger = LoggerFactory.getLogger(TransactionsService.class);
+
     @Override
     @CircuitBreaker(name = "microservice-account",fallbackMethod = "fallBackUpdateBalanceAccount")
     @Retry(name = "microservice-account")
@@ -36,8 +40,9 @@ public class TransactionsService implements ITransactionsService {
         transactionRepo.save(transaction);
     }
 
-    public void fallBackUpdateBalanceAccount(Throwable throwable) {
-        // Adecuar el Throwable con el uso de Logger...
+    public void fallBackUpdateBalanceAccount(Transaction transaction, String aliasOrCvu,Throwable throwable) {
+        logger.error("Error updating balance for transaction with ID: {} and alias/CVU: {}. Error: {}",
+                transaction.getIdAccount(), aliasOrCvu, throwable.getMessage(), throwable);
     }
 
     @Override
@@ -55,8 +60,10 @@ public class TransactionsService implements ITransactionsService {
         return new TransactionDTO(accountDTO,transaction);
     }
 
-    public String fallBackFindTransactionAndAccount(Throwable throwable){
-        return "algo salio mal";
+    public TransactionDTO fallBackFindTransactionAndAccount(Long idTransaction, Throwable throwable) {
+        logger.error("Error finding transaction and account for transaction ID: {}. Error: {}",
+                idTransaction, throwable.getMessage(), throwable);
+        return new TransactionDTO(null, null);
     }
 
     @Override
