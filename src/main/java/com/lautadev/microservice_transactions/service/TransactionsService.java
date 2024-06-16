@@ -11,27 +11,33 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 public class TransactionsService implements ITransactionsService {
-    @Autowired
-    private ITransactionsRepository transactionRepo;
+
+    private final ITransactionsRepository transactionRepo;
+    private final IAccountAPIClient accountAPI;
+    private final TransactionValidator validator;
 
     @Autowired
-    private IAccountAPIClient accountAPI;
-
-    @Autowired
-    private TransactionValidator validator;
+    public TransactionsService(ITransactionsRepository transactionRepo, IAccountAPIClient accountAPI, TransactionValidator validator){
+        this.transactionRepo = transactionRepo;
+        this.accountAPI = accountAPI;
+        this.validator = validator;
+    }
 
     public static final Logger logger = LoggerFactory.getLogger(TransactionsService.class);
 
     @Override
     @CircuitBreaker(name = "microservice-account",fallbackMethod = "fallBackUpdateBalanceAccount")
     @Retry(name = "microservice-account")
+    @Transactional
     public void saveTransaction(Transaction transaction, String aliasOrCvu) {
         validator.validate(transaction);
         UpdateBalanceDTO updateBalanceDTO = new UpdateBalanceDTO(transaction.getAmount(), transaction.getTypeOfOperation());
@@ -72,20 +78,17 @@ public class TransactionsService implements ITransactionsService {
     }
 
     @Override
+    @Transactional
     public void deleteTransaction(Long idTransaction) {
         transactionRepo.deleteById(idTransaction);
     }
 
     @Override
+    @Transactional
     public void editTransaction(Long idTransaction, Transaction transaction) {
         Transaction transactionEdit = transactionRepo.findById(idTransaction).orElse(null);
-
         assert transactionEdit != null;
-        transactionEdit.setTypeOfOperation(transaction.getTypeOfOperation());
-        transactionEdit.setAmount(transaction.getAmount());
-        transactionEdit.setDateOfOperation(transaction.getDateOfOperation());
-        transactionEdit.setIdAccount(transaction.getIdAccount());
-
+        BeanUtils.copyProperties(transaction, transactionEdit,"idTransaction");
         validator.validate(transactionEdit);
         transactionRepo.save(transactionEdit);
     }
