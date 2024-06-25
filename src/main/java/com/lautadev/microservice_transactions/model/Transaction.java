@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter @Setter
 @NoArgsConstructor
@@ -21,10 +21,9 @@ public class Transaction {
     private TypeOfOperation typeOfOperation;
     @NotNull
     private double amount;
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIMESTAMP)
     @NotNull
-    @PastOrPresent
-    private LocalDate dateOfOperation;
+    private LocalDateTime dateOfOperation;
     @NotNull
     private Long idAccount;
 }

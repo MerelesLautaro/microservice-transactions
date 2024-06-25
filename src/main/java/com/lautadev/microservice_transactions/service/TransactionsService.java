@@ -5,6 +5,7 @@ import com.lautadev.microservice_transactions.dto.AccountDTO;
 import com.lautadev.microservice_transactions.dto.TransactionDTO;
 import com.lautadev.microservice_transactions.dto.UpdateBalanceDTO;
 import com.lautadev.microservice_transactions.model.Transaction;
+import com.lautadev.microservice_transactions.model.TypeOfOperation;
 import com.lautadev.microservice_transactions.repository.IAccountAPIClient;
 import com.lautadev.microservice_transactions.repository.ITransactionsRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -16,7 +17,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TransactionsService implements ITransactionsService {
@@ -56,6 +60,15 @@ public class TransactionsService implements ITransactionsService {
         return transactionRepo.findAll();
     }
 
+
+    @Override
+    public List<Transaction> getTransactionsByAccount(Long idAccount) {
+        List<Transaction> transactions = this.getTransactions();
+        return transactions.stream()
+                .filter(transaction -> transaction.getIdAccount().equals(idAccount))
+                .collect(Collectors.toList());
+    }
+
     @Override
     @CircuitBreaker(name = "microservice-account",fallbackMethod = "fallBackFindTransactionAndAccount")
     @Retry(name = "microservice-account")
@@ -77,6 +90,55 @@ public class TransactionsService implements ITransactionsService {
         return transactionRepo.findById(idTransaction).orElse(null);
     }
 
+    // START Methods for Filters
+
+    @Override
+    public List<Transaction> getTransactionsByOperationAndAccount(TypeOfOperation typeOfOperation, Long idAccount) {
+        return transactionRepo.getTransactionsByOperationAndAccount(typeOfOperation, idAccount);
+    }
+
+    @Override
+    public List<Transaction> getTransactionsForToday(Long idAccount) {
+        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+        LocalDateTime endOfDay = startOfDay.plusDays(1);
+        return transactionRepo.findTransactionsWithinDateRange(startOfDay, endOfDay, idAccount);
+    }
+
+    @Override
+    public List<Transaction> getTransactionsForYesterday(Long idAccount) {
+        return transactionRepo.findTransactionsForYesterday(idAccount);
+    }
+
+    @Override
+    public List<Transaction> getTransactionsForLast7Days(Long idAccount) {
+        LocalDateTime endOfDay = LocalDate.now().plusDays(1).atStartOfDay();
+        LocalDateTime startOfDay = endOfDay.minusDays(7);
+        return transactionRepo.findTransactionsWithinDateRange(startOfDay, endOfDay, idAccount);
+    }
+
+    @Override
+    public List<Transaction> getTransactionsForLast15Days(Long idAccount) {
+        LocalDateTime endOfDay = LocalDate.now().plusDays(1).atStartOfDay();
+        LocalDateTime startOfDay = endOfDay.minusDays(15);
+        return transactionRepo.findTransactionsWithinDateRange(startOfDay, endOfDay, idAccount);
+    }
+
+    @Override
+    public List<Transaction> getTransactionsForLastMonth(Long idAccount) {
+        LocalDateTime endOfDay = LocalDate.now().plusDays(1).atStartOfDay();
+        LocalDateTime startOfDay = endOfDay.minusMonths(1);
+        return transactionRepo.findTransactionsWithinDateRange(startOfDay, endOfDay, idAccount);
+    }
+
+    @Override
+    public List<Transaction> getTransactionsForLast3Months(Long idAccount) {
+        LocalDateTime endOfDay = LocalDate.now().plusDays(1).atStartOfDay();
+        LocalDateTime startOfDay = endOfDay.minusMonths(3);
+        return transactionRepo.findTransactionsWithinDateRange(startOfDay, endOfDay, idAccount);
+    }
+
+    // END Methods for Filters
+
     @Override
     @Transactional
     public void deleteTransaction(Long idTransaction) {
@@ -92,4 +154,6 @@ public class TransactionsService implements ITransactionsService {
         validator.validate(transactionEdit);
         transactionRepo.save(transactionEdit);
     }
+
+
 }

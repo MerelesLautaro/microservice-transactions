@@ -2,7 +2,9 @@ package com.lautadev.microservice_transactions.controller;
 
 import com.lautadev.microservice_transactions.dto.TransactionDTO;
 import com.lautadev.microservice_transactions.model.Transaction;
+import com.lautadev.microservice_transactions.model.TypeOfOperation;
 import com.lautadev.microservice_transactions.service.ITransactionsService;
+import com.lautadev.microservice_transactions.service.TransactionsService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +37,11 @@ public class TransactionsController {
         return ResponseEntity.ok(transaction);
     }
 
+    @GetMapping("/get/account/{id}")
+    public ResponseEntity<List<Transaction>> getTransactionsByAccount(@PathVariable Long id){
+        return ResponseEntity.ok(transactionServ.getTransactionsByAccount(id));
+    }
+
     @GetMapping("/get/transactionAndAccount/{id}")
     public ResponseEntity<TransactionDTO> findTransactionAndAccount(@PathVariable Long id){
         TransactionDTO transactionDTO = transactionServ.findTransactionAndAccount(id);
@@ -52,5 +59,42 @@ public class TransactionsController {
     public ResponseEntity<Transaction> editTransaction(@PathVariable Long id, @Valid @RequestBody Transaction transaction){
         transactionServ.editTransaction(id,transaction);
         return ResponseEntity.ok(transactionServ.findTransaction(id));
+    }
+
+    //Endpoints for filters
+    @GetMapping("/get/operation")
+    public ResponseEntity<List<Transaction>> getTransactionsByOperationAndAccount(@RequestParam TypeOfOperation typeOfOperation,
+                                                                                  @RequestParam Long idAccount){
+        return ResponseEntity.ok(transactionServ.getTransactionsByOperationAndAccount(typeOfOperation, idAccount));
+    }
+
+    @GetMapping("/today")
+    public ResponseEntity<List<Transaction>> getTransactionsForToday(@RequestParam Long idAccount) {
+        return ResponseEntity.ok(transactionServ.getTransactionsForToday(idAccount));
+    }
+
+    @GetMapping("/yesterday")
+    public ResponseEntity<List<Transaction>> getTransactionsForYesterday(@RequestParam Long idAccount) {
+        return ResponseEntity.ok(transactionServ.getTransactionsForYesterday(idAccount));
+    }
+
+    @GetMapping("/last7days")
+    public ResponseEntity<List<Transaction>> getTransactionsForLast7Days(@RequestParam Long idAccount) {
+        return ResponseEntity.ok(transactionServ.getTransactionsForLast7Days(idAccount));
+    }
+
+    @GetMapping("/last15days")
+    public ResponseEntity<List<Transaction>> getTransactionsForLast15Days(@RequestParam Long idAccount) {
+        return ResponseEntity.ok(transactionServ.getTransactionsForLast15Days(idAccount));
+    }
+
+    @GetMapping("/lastmonth")
+    public ResponseEntity<List<Transaction>> getTransactionsForLastMonth(@RequestParam Long idAccount) {
+        return ResponseEntity.ok(transactionServ.getTransactionsForLastMonth(idAccount));
+    }
+
+    @GetMapping("/last3months")
+    public ResponseEntity<List<Transaction>> getTransactionsForLast3Months(@RequestParam Long idAccount) {
+        return ResponseEntity.ok(transactionServ.getTransactionsForLast3Months(idAccount));
     }
 }
