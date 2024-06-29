@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -68,33 +69,41 @@ public class TransactionsController {
         return ResponseEntity.ok(transactionServ.getTransactionsByOperationAndAccount(typeOfOperation, idAccount));
     }
 
-    @GetMapping("/today")
+    @GetMapping("/filter/today")
     public ResponseEntity<List<Transaction>> getTransactionsForToday(@RequestParam Long idAccount) {
         return ResponseEntity.ok(transactionServ.getTransactionsForToday(idAccount));
     }
 
-    @GetMapping("/yesterday")
+    @GetMapping("/filter/yesterday")
     public ResponseEntity<List<Transaction>> getTransactionsForYesterday(@RequestParam Long idAccount) {
         return ResponseEntity.ok(transactionServ.getTransactionsForYesterday(idAccount));
     }
 
-    @GetMapping("/last7days")
+    @GetMapping("/filter/last7days")
     public ResponseEntity<List<Transaction>> getTransactionsForLast7Days(@RequestParam Long idAccount) {
         return ResponseEntity.ok(transactionServ.getTransactionsForLast7Days(idAccount));
     }
 
-    @GetMapping("/last15days")
+    @GetMapping("/filter/last15days")
     public ResponseEntity<List<Transaction>> getTransactionsForLast15Days(@RequestParam Long idAccount) {
         return ResponseEntity.ok(transactionServ.getTransactionsForLast15Days(idAccount));
     }
 
-    @GetMapping("/lastmonth")
+    @GetMapping("/filter/lastmonth")
     public ResponseEntity<List<Transaction>> getTransactionsForLastMonth(@RequestParam Long idAccount) {
         return ResponseEntity.ok(transactionServ.getTransactionsForLastMonth(idAccount));
     }
 
-    @GetMapping("/last3months")
+    @GetMapping("/filter/last3months")
     public ResponseEntity<List<Transaction>> getTransactionsForLast3Months(@RequestParam Long idAccount) {
         return ResponseEntity.ok(transactionServ.getTransactionsForLast3Months(idAccount));
+    }
+
+    @GetMapping("/filter/custom")
+    public ResponseEntity<List<Transaction>> getTransactionsByDateAndOperationAndAccount(
+            @RequestParam String dateFilter,
+            @RequestParam TypeOfOperation typeOfOperation,
+            @RequestParam Long idAccount) {
+        return ResponseEntity.ok(transactionServ.getTransactionsByDateAndOperationAndAccount(dateFilter, typeOfOperation, idAccount));
     }
 }

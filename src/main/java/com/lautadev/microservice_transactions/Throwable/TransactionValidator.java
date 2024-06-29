@@ -1,6 +1,7 @@
 package com.lautadev.microservice_transactions.Throwable;
 
 import com.lautadev.microservice_transactions.model.Transaction;
+import com.lautadev.microservice_transactions.model.TypeOfOperation;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
@@ -18,6 +19,15 @@ public class TransactionValidator {
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         this.validator = factory.getValidator();
     }
+
+    public void validateTypeOfOperation(TypeOfOperation typeOfOperation) {
+        // Implementa la lógica de validación para el tipo de operación
+        if (typeOfOperation == null) {
+            throw new IllegalArgumentException("El tipo de operación no puede ser nulo");
+        }
+        // Otros casos de validación según tus requerimientos
+    }
+
 
     public void validate(Transaction transaction) {
         if (transaction == null) {

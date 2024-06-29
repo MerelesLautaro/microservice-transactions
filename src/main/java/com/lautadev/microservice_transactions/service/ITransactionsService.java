@@ -4,6 +4,7 @@ import com.lautadev.microservice_transactions.dto.TransactionDTO;
 import com.lautadev.microservice_transactions.model.Transaction;
 import com.lautadev.microservice_transactions.model.TypeOfOperation;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ITransactionsService {
@@ -22,5 +23,9 @@ public interface ITransactionsService {
     List<Transaction> getTransactionsForLast15Days(Long idAccount);
     List<Transaction> getTransactionsForLastMonth(Long idAccount);
     List<Transaction> getTransactionsForLast3Months(Long idAccount);
+    // Filters by Date, Type of Operation and Account
+    List<Transaction> getTransactionsByDateAndOperationAndAccount(String dateFilter, TypeOfOperation typeOfOperation, Long idAccount);
+
+
 
 }

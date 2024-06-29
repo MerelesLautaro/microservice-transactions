@@ -137,6 +137,39 @@ public class TransactionsService implements ITransactionsService {
         return transactionRepo.findTransactionsWithinDateRange(startOfDay, endOfDay, idAccount);
     }
 
+    // Filters by Date, Type of Operation and Account
+    @Override
+    public List<Transaction> getTransactionsByDateAndOperationAndAccount(String dateFilter, TypeOfOperation typeOfOperation, Long idAccount) {
+        LocalDateTime startDate;
+        LocalDateTime endDate = LocalDate.now().plusDays(1).atStartOfDay(); // End of today
+
+        switch (dateFilter) {
+            case "Hoy":
+                startDate = LocalDate.now().atStartOfDay(); // Start of today
+                break;
+            case "Ayer":
+                startDate = LocalDate.now().minusDays(1).atStartOfDay(); // Start of yesterday
+                endDate = LocalDate.now().atStartOfDay(); // End of yesterday
+                break;
+            case "Últimos 7 días":
+                startDate = LocalDate.now().minusDays(7).atStartOfDay(); // Start of 7 days ago
+                break;
+            case "Últimos 15 días":
+                startDate = LocalDate.now().minusDays(15).atStartOfDay(); // Start of 15 days ago
+                break;
+            case "Último mes":
+                startDate = LocalDate.now().minusMonths(1).atStartOfDay(); // Start of last month
+                break;
+            case "Últimos 3 meses":
+                startDate = LocalDate.now().minusMonths(3).atStartOfDay(); // Start of 3 months ago
+                break;
+            default:
+                throw new IllegalArgumentException("Filtro de fecha no reconocido: " + dateFilter);
+        }
+
+        return transactionRepo.findTransactionsByDateAndOperationAndAccount(startDate, endDate, typeOfOperation, idAccount);
+    }
+
     // END Methods for Filters
 
     @Override
